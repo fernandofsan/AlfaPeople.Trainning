@@ -1,55 +1,54 @@
 ﻿using System;
+using System.IdentityModel.Metadata;
+using System.Linq;
 using Microsoft.Xrm.Sdk;
+using Microsoft.Xrm.Sdk.Query;
 
 namespace AlfaPeople.Trainning.Plugins
 {
     public class Account : IPlugin
     {
+        IPluginExecutionContext context = null;
+        Entity entity = null;
+        ITracingService log = null;
+        IOrganizationServiceFactory serviceFactory = null;
+        IOrganizationService service = null;
+
         public void Execute(IServiceProvider serviceProvider)
         {
-            var context = (IPluginExecutionContext)serviceProvider.GetService(typeof(IPluginExecutionContext));
-            var entity = (Entity)context.InputParameters["Target"];
-            var log = (ITracingService)serviceProvider.GetService(typeof(ITracingService));
-            var serviceFactory = (IOrganizationServiceFactory)serviceProvider.GetService(typeof(IOrganizationServiceFactory));
-            var service = serviceFactory.CreateOrganizationService(context.UserId);
+            context = (IPluginExecutionContext)serviceProvider.GetService(typeof(IPluginExecutionContext));
+            entity = (Entity)context.InputParameters["Target"];
+            log = (ITracingService)serviceProvider.GetService(typeof(ITracingService));
+            serviceFactory = (IOrganizationServiceFactory)serviceProvider.GetService(typeof(IOrganizationServiceFactory));
+            service = serviceFactory.CreateOrganizationService(context.UserId);
 
-            log.Trace("Iniciando o processo de execução do Plugin");
+            log.Trace("Iniciando Validação do CNPJ");
 
-            //entity.Attributes["websiteurl"] = "https://google.com?cnpj=" + entity.Attributes["accountnumber"] as string;
+            if (entity.Contains("accountnumber") && !string.IsNullOrEmpty(entity.GetAttributeValue<string>("accountnumber")))
+                VerifyAccountNumber(entity.GetAttributeValue<string>("accountnumber"));
 
-            log.Trace($"Depth ({context.Depth})");
+            //Toda Oportunidade Fechada como Ganha deverá ser calculada a média e atualizado a coluna TicketMédio da Conta
+            //Considerar apenas as Oportunidades fechadas nos últimos 12 meses
+            //As Oportunidades que pertencem à Filiais das Matrizes também deverão ser contabilizadas
+        }
 
+        private void VerifyAccountNumber(string accountNumber)
+        {
+           if(!CPNJValidator.IsValid(entity.GetAttributeValue<string>("accountnumber")))
+                throw new InvalidPluginExecutionException("CNPJ inválido.");
 
-            //var accountUpdate = new Entity("account", entity.Id);
-            //accountUpdate.Attributes["websiteurl"] = "https://google.com?cnpj=" + entity.GetAttributeValue<string>("accountnumber");
-            //entity.GetAttributeValue<int>("accountnumber");
-            //accountUpdate.Attributes["accountnumber"] = DateTime.Now.ToString($"hh:mm:ss ({context.Depth})");
-            /////Atualiza informações no DataVerse
-            //service.Update(accountUpdate);
+            entity.Attributes["alfa_account_only_numbers"] = accountNumber.ToOnlyNumbers();
 
-            ////usando formatted value
-            //var revenue = entity.GetAttributeValue<Money>("revenue");
-            //var revenue_formatted = entity.FormattedValues["revenue"];
+            var queryFindAnotherAccount = new QueryExpression("account");
+            queryFindAnotherAccount.ColumnSet.AddColumn("name");
+            queryFindAnotherAccount.Criteria.AddCondition("accountnumber", ConditionOperator.Equal, accountNumber);
+            queryFindAnotherAccount.TopCount = 1;
+            var collectionAnotherAccount = service.RetrieveMultiple(queryFindAnotherAccount);
+            var accountFound = collectionAnotherAccount.Entities.FirstOrDefault();
+            if (accountFound != null)
+                throw new InvalidPluginExecutionException($"O CNPJ '{accountNumber}' já está sendo utilizado na Conta '{accountFound.GetAttributeValue<string>("name")}'.");
 
-            ////Busca informações no DataVerse
-            //var account = service.Retrieve("account", entity.Id, new ColumnSet(true));
-            //var revenue_formatted = account.FormattedValues["revenue"];
-
-            //throw new InvalidPluginExecutionException($"Caro usuário, o valor informado não está de acordo com a quantidade de funcionários. O valor informado foi '{revenue.Value}'");
-            //throw new InvalidPluginExecutionException($"Caro usuário, o valor informado não está de acordo com a quantidade de funcionários. O valor informado foi '{revenue_formatted}'");
-
-            //entity.GetAttributeValue<OptionSetValueCollection>("accountnumber").FirstOrDefault().Value;
-
-            //entity.GetAttributeValue<Money>("accountnumber");
-            //entity.GetAttributeValue<EntityReference>("accountnumber").;
-
-
-
-
-
-            log.Trace(DateTime.Now.ToString());
-
-            log.Trace("Fim do Processamento do Plugin");
+            log.Trace("Fim da Validação do CNPJ");
         }
     }
 }
