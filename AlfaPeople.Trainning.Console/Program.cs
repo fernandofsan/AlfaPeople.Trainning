@@ -17,21 +17,12 @@ namespace AlfaPeople.Trainning.Console
 {
     class Program
     {
-
         static void Main(string[] args)
         {
             System.Console.WriteLine("AlfaPeople Trainning 05/10");
 
             var service = ConnectionFactory.GetOrganizationService();
 
-
-
-
-            //var context = new OrganizationServiceContext(service);
-            //var accounts = from c in context.CreateQuery("account")
-            //               where (string)c["address1_city"] == "Seattle"
-            //               orderby (string)c["name"]
-            //               select c;
 
             //System.Console.WriteLine("Consulta - Linq");
 
@@ -43,13 +34,26 @@ namespace AlfaPeople.Trainning.Console
             //RetrieveAccout();
 
 
-
+            //RetrieveMultipleLinqExpression();
             //RetrieveMultipleByFetchXML();
             //RequestByQueryExpression();
-            RetrieveMultipleByPaging();
+            //RetrieveMultipleByPaging();
             System.Console.ReadLine();
+        }
 
+        private static void RetrieveMultipleLinqExpression()
+        {
+            var service = ConnectionFactory.GetOrganizationService();
 
+            var context = new OrganizationServiceContext(service);
+            var accounts = from c in context.CreateQuery("account")
+                           where (string)c["address1_city"] == "Seattle"
+                           select c;
+
+            foreach (var item in accounts.ToList())
+            {
+                System.Console.WriteLine($"{item.GetAttributeValue<string>("name")} | {item.GetAttributeValue<string>("address1_city")}");
+            }
         }
 
         private void RetrieveAccout()
@@ -112,7 +116,6 @@ namespace AlfaPeople.Trainning.Console
             }
             #endregion
         }
-
 
         private void RetrieveMultipleByQueryExpression()
         {

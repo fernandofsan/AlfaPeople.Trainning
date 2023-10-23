@@ -7,8 +7,8 @@
     <ProjectGuid>{3BFE5134-D778-413A-853E-DECF2A72DBC5}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PortoPlugins</RootNamespace>
-    <AssemblyName>PortoPlugins</AssemblyName>
+    <RootNamespace>AlfaPeople.Trainning.Plugins</RootNamespace>
+    <AssemblyName>AlfaPeople.Trainning.Plugins</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
