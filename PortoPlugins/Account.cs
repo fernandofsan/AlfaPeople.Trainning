@@ -26,10 +26,6 @@ namespace AlfaPeople.Trainning.Plugins
 
             if (entity.Contains("accountnumber") && !string.IsNullOrEmpty(entity.GetAttributeValue<string>("accountnumber")))
                 VerifyAccountNumber(entity.GetAttributeValue<string>("accountnumber"));
-
-            //Toda Oportunidade Fechada como Ganha deverá ser calculada a média e atualizado a coluna TicketMédio da Conta
-            //Considerar apenas as Oportunidades fechadas nos últimos 12 meses
-            //As Oportunidades que pertencem à Filiais das Matrizes também deverão ser contabilizadas
         }
 
         private void VerifyAccountNumber(string accountNumber)
