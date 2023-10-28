@@ -19,7 +19,12 @@ namespace AlfaPeople.Trainning.Plugins
 
             var parentaccountid = entity.GetAttributeValue<EntityReference>("parentaccountid").Id;
 
-            RecalcularTicketMedio(parentaccountid);
+            var req = new OrganizationRequest("alfa_AccountRecalculateTicket")
+            {
+                ["Target"] = new EntityReference("account", parentaccountid),
+            };
+
+            var resp = service.Execute(req);
         }
     }
 }

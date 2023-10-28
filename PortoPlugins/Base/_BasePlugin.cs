@@ -22,34 +22,5 @@ namespace AlfaPeople.Trainning.Plugins.Base
 
             Execute();
         }
-
-        public void RecalcularTicketMedio(Guid parentaccountid)
-        {
-            var queryFindAllOportunities = new QueryExpression("opportunity");
-            queryFindAllOportunities.ColumnSet.AddColumn("actualvalue");
-            queryFindAllOportunities.Criteria.AddCondition("parentaccountid", ConditionOperator.Equal, parentaccountid);
-            queryFindAllOportunities.Criteria.AddCondition("statecode", ConditionOperator.Equal, 1);
-            queryFindAllOportunities.Criteria.AddCondition("actualclosedate", ConditionOperator.LastXMonths, 12);
-            var collectionAllOportunities = service.RetrieveMultiple(queryFindAllOportunities);
-
-            log.Trace($"Número Total de Oportunidades encontradas ({collectionAllOportunities.Entities.Count})");
-
-            decimal total = 0;
-            decimal average = 0;
-
-            foreach (var item in collectionAllOportunities.Entities)
-            {
-                total += item.GetAttributeValue<Money>("actualvalue").Value;
-            }
-
-            if (collectionAllOportunities.Entities.Count > 0)
-            {
-                average = total / collectionAllOportunities.Entities.Count;
-            }
-
-            var accountUpdate = new Entity("account", parentaccountid);
-            accountUpdate.Attributes["alfa_ticket_medio"] = new Money(average);
-            service.Update(accountUpdate);
-        }
     }
 }

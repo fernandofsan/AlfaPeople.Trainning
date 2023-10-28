@@ -1,4 +1,5 @@
-﻿using System.Runtime.Remoting.Contexts;
+﻿using System;
+using System.Runtime.Remoting.Contexts;
 using AlfaPeople.Trainning.Plugins.Base;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
@@ -18,7 +19,13 @@ namespace AlfaPeople.Trainning.Plugins
             var opportunity = service.Retrieve("opportunity", opportunityId, new ColumnSet("parentaccountid"));
             var parentaccountid = opportunity.GetAttributeValue<EntityReference>("parentaccountid").Id;
 
-            RecalcularTicketMedio(parentaccountid);
+
+            var req = new OrganizationRequest("alfa_AccountRecalculateTicket")
+            {
+                ["Target"] = new EntityReference("account", parentaccountid),
+            };
+
+            var resp = service.Execute(req);
         }
     }
 }
