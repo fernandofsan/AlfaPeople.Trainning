@@ -24,7 +24,7 @@ namespace AlfaPeople.Trainning.Plugins
                 ["Target"] = new EntityReference("account", parentaccountid),
             };
 
-            var resp = service.Execute(req);
+            service.Execute(req);
         }
     }
 }
