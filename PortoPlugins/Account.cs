@@ -39,12 +39,6 @@ namespace AlfaPeople.Trainning.Plugins
             queryContacts.Criteria.AddCondition("parentcustomerid", ConditionOperator.Equal, acountId);
             var collectionContacts = service.RetrieveMultiple(queryContacts);
 
-            //foreach (var contact in collectionContacts.Entities)
-            //{
-            //    var contactUpdate = new Entity("contact", contact.Id);
-            //    contactUpdate.Attributes["address1_city"] = newCityName;
-            //    service.Update(contactUpdate);
-            //}
             var multipleRequest = new ExecuteMultipleRequest()
             {
                 Settings = new ExecuteMultipleSettings()
