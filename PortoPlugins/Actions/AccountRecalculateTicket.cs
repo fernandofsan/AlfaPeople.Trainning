@@ -17,6 +17,7 @@ namespace AlfaPeople.Trainning.Plugins.Actions
 
             context.OutputParameters["Success"] = true;
             context.OutputParameters["Message"] = $"O Ticket Médio Calculado foi: {average}";
+            context.OutputParameters["Total"] = average;
         }
 
         public decimal RecalcularTicketMedio(Guid parentaccountid, int months = 12)
